@@ -12,15 +12,19 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import testForMobven.test.compare.TestAssertions;
 
 
+
+
 public class App 
 {	
+	//Standart class for log4j
 	final static Logger logger = Logger.getLogger(App.class);
 	
     public static void main( String[] args )
     {    	
-        
+    	//Selenium webdriver for firefox
+    	WebDriver driver = new FirefoxDriver();
         try {
-        	
+        	//Relative path for gecko driver(for firefox)
         	System.setProperty("webdriver.gecko.driver", "C:\\Users\\EXT02D6549\\eclipse-workspace\\test\\drivers\\geckodriver\\geckodriver.exe");
         	String url = "https://www.amazon.com.tr"; 
         	String searchKey = "iPhone";
@@ -30,38 +34,45 @@ public class App
         	
             double firstPrice = 0.0;
             double secondPrice = 0.0;
-            
-            WebDriver driver = new FirefoxDriver();
+                        
             driver.get(url);
             
+            //Textbox for search item in amazon
             WebElement searchTextBox = driver.findElement(By.id("twotabsearchtextbox"));
+            //Step 1:Clear the amazon searchbox
             searchTextBox.clear(); 
+            //Step 2:Write "iphone" in the search box
             searchTextBox.sendKeys(searchKey);
             Thread.sleep(3000);
+            //Step 3:Write empty space to have suggestions
             searchTextBox.sendKeys(" ");
             Thread.sleep(3000);
+            //Step 4:Click iphonex in suggestions
             WebElement searchSuggestions = driver.findElement(By.id("issDiv0"));
             System.out.println("value :" + searchSuggestions.getText());
             searchSuggestions.click();
+            //-----------------------------------
             Thread.sleep(3000);
+            //Step 5:Click the item link on iphonex page  
             WebElement suggestionsList = driver.findElement(By.xpath("//span[contains(text(),'Apple iPhone X, 64 GB, Uzay Gri (Apple Türkiye Gar')]"));
             System.out.println("value : " + suggestionsList.getText());
-            
             suggestionsList.click();
+            
             Thread.sleep(3000);
-            
+            //Step 6:Get the first price on the page of item
             WebElement suggestionsListPrice = driver.findElement(By.id("priceblock_ourprice"));
-            firstPrice = Double.valueOf(suggestionsListPrice.getText().replaceAll("TL", "").trim().replaceAll("\\.", "").replaceAll(",", "\\.").trim());
-            
+            //Reformatting the price string to have the correct number format
+            firstPrice = Double.valueOf(suggestionsListPrice.getText().replaceAll("TL", " ").trim().replaceAll("\\.", " ").replaceAll(",", "\\.").trim());
+            //Step 7:Get the second price on the page of item
             WebElement secondItemValue = driver.findElement(By.id("mbc-price-2"));
-            
-            secondPrice = Double.valueOf(secondItemValue.getText().replaceAll("TL", "").trim().replaceAll("\\.", "").replaceAll(",", "\\.").trim());
-            
+            secondPrice = Double.valueOf(secondItemValue.getText().replaceAll("TL", " ").trim().replaceAll("\\.", " ").replaceAll(",", "\\.").trim());
+            //Step 8:Comparing first and second price
             TestAssertions ta = new TestAssertions();
             ta.testAssert(firstPrice, secondPrice);
             
             Result result = JUnitCore.runClasses(ta.getClass()); 
             WebElement basket = null;
+            //Step 9:Adding the price selected in the basket
             //birinci büyük
             if(result.getFailureCount() > 0 ) {
             	
@@ -74,14 +85,18 @@ public class App
         	basket = driver.findElement(By.xpath(selectedBoxPath));
         	logger.info(selectedBoxPath);
         	basket.click();	
-            	
+        	//--------------------------------	
             Thread.sleep(3000);
-			driver.close();
-			
+						
 		} catch (InterruptedException e) 
         {
 			System.out.println("Error : "+ e.getMessage());
 			logger.error(e.getMessage());
+		}finally {
+			
+			driver.close();
+			
 		}
+        
     }
 }
